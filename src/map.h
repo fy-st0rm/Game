@@ -6,9 +6,9 @@
 
 enum tile_types
 {
-	GRASS,
-	PATH,
-	WATER
+	GRASS = 1,
+	PATH  = 2,
+	WATER = 3
 };
 
 typedef struct

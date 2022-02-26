@@ -1,7 +1,6 @@
 #include "map.h"
 
-//TODO: DEALLOCATE THE MEMORIES
-//TODO: Better way to insert to dictionary
+//TODO: Load Game Map 
 //TODO: Isometric rendering
 
 Map* map_new(GLNWindow* window)
@@ -11,19 +10,13 @@ Map* map_new(GLNWindow* window)
 	map->tex_cnt = 3;
 	map->tex_dict = dict_new(map->tex_cnt);
 
-
 	vec4f grass = { 0.0 / map->tex_cnt, 0.0, 1.0 / map->tex_cnt, 1.0 };
 	vec4f path  = { 1.0 / map->tex_cnt, 0.0, 1.0 / map->tex_cnt, 1.0 };
 	vec4f water = { 2.0 / map->tex_cnt, 0.0, 1.0 / map->tex_cnt, 1.0 };
-	vec4f* gt = malloc(sizeof(vec4f));
-	vec4f* pt = malloc(sizeof(vec4f));
-	vec4f* wt = malloc(sizeof(vec4f));
-	memcpy(gt, &grass, sizeof(grass));
-	memcpy(pt, &path, sizeof(path));
-	memcpy(wt, &water, sizeof(water));
-	dict_insert(map->tex_dict, (void*) GRASS, (void*) gt);
-	dict_insert(map->tex_dict, (void*) PATH , (void*) pt);
-	dict_insert(map->tex_dict, (void*) WATER, (void*) wt);
+
+	dict_insert(map->tex_dict, (void*) GRASS, (void*) &grass, sizeof(grass));
+	dict_insert(map->tex_dict, (void*) PATH , (void*) &path , sizeof(path));
+	dict_insert(map->tex_dict, (void*) WATER, (void*) &water, sizeof(water));
 
 	return map;
 }

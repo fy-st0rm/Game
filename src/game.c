@@ -64,6 +64,7 @@ void game_run(Game* game)
 		glUseProgram(game->shader);
 		ortho_cam_update(game->camera, game->shader);
 
+		// Rendering
 		gln_render_begin(game->renderer);
 		map_render(game->map, game->renderer);
 		gln_render_end(game->renderer);
