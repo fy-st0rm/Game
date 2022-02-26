@@ -6,25 +6,29 @@
 
 enum tile_types
 {
-	GRASS = 1,
-	PATH  = 2,
-	WATER = 3
+	NONE,
+	GRASS,
+	PATH ,
+	WATER
 };
 
 typedef struct
 {
 	int type;
-} Tiles;
+} Tile;
 
 typedef struct
 {
 	GLNTexture texture;
 	Dict* tex_dict;
 	int tex_cnt;
-	Tiles* map[100];
+
+	Tile** tile_map;
+	char*  raw_map;
 } Map;
 
 Map* map_new(GLNWindow* window);
+void load_map(Map* map, char* file);
 void map_render(Map* map, GLNRenderer* renderer);
 
 #endif 

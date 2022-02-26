@@ -21,24 +21,92 @@ Map* map_new(GLNWindow* window)
 	return map;
 }
 
+void load_map(Map* map, char* file)
+{
+	char* temp_map = load_file(file);
+	map->raw_map = calloc(strlen(temp_map), sizeof(char));
+
+	// Copying the world map in a reversed order
+	int offset = 0;
+	char* line = strtok(temp_map, "\n");
+	while (line != NULL)
+	{
+		strrev(line);
+		strcpy(map->raw_map + offset, line);
+		offset += strlen(line);
+		strcpy(map->raw_map + offset++, "\n");
+		line = strtok(NULL, "\n");
+	}
+	free(line);
+	free(temp_map);
+
+	// Generating tile map buffer
+	map->tile_map = malloc(strlen(map->raw_map) * 2 * sizeof(Tile));
+
+	// Creating tiles
+	for (int i = 0; i < strlen(map->raw_map); i++)
+	{
+		Tile* new_tile = malloc(sizeof(Tile));
+		char id = map->raw_map[i];
+
+		switch (id)
+		{
+			case '1':
+				new_tile->type = GRASS;
+				break;
+			case '2':
+				new_tile->type = PATH;
+				break;
+			case '3':
+				new_tile->type = WATER;
+				break;
+			case '\n':
+				new_tile->type = NONE;
+				break;
+			default:
+				fprintf(stderr, "[Error]: Unknown tile id `%c`\n", id);
+				exit(1);
+				break;
+		}
+		map->tile_map[i] = new_tile;
+	}
+}
+
 void map_render(Map* map, GLNRenderer* renderer)
 {
-	vec3f pos1 = { 100.0f, 100.0f, 0.0f };
-	vec3f pos2 = { 250.0f, 100.0f, 0.0f };
-	vec3f pos3 = { 400.0f, 100.0f, 0.0f };
-	vec2f size = { 100.0f , 100.0f };
 	vec4f color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	vec2f  size = { 31.0f, 31.0f };
 
-	vec4f* gt = dict_get(map->tex_dict, (void*)GRASS);
-	Quad* grass = gln_create_quad(renderer, pos1, size, color, *gt, map->texture.id);
+	float in_x = 100.0f, in_y = 100.0f;
+	float x = in_x, y = in_y;
+	float w = 0, h = in_y; 
 
-	vec4f* pt = dict_get(map->tex_dict, (void*)PATH);
-	Quad* path = gln_create_quad(renderer, pos2, size, color, *pt, map->texture.id);
+	for (int i = 0; i < strlen(map->raw_map); i++)
+	{
+		Tile* tile = map->tile_map[i];
+		if (tile->type)
+		{
+			vec4f* tex 	= dict_get(map->tex_dict, tile->type);
+			vec3f  pos 	= { x, y, 0.0f };
+		
+			// Enlarging the vertices
+			mat4f enlarge = {0};
+			mat4f_enlarge(&enlarge, 2.0f);
 
-	vec4f* wt = dict_get(map->tex_dict, (void*)WATER);
-	Quad* water = gln_create_quad(renderer, pos3, size, color, *wt, map->texture.id);
+			Quad* quad = gln_create_quad(renderer, pos, size, color, *tex, map->texture.id);
+			mat4f_quad_mul(enlarge, quad);
+			gln_push_quad(renderer, quad);
+			gln_destroy_quad(quad);
 
-	gln_push_quad(renderer, grass);
-	gln_push_quad(renderer, path);
-	gln_push_quad(renderer, water);
+			x -= 15.0f;
+			y += 7.0f;
+		}
+		else 
+		{
+			x = in_x + w + 15.0f;
+			y = h + 7.0f;
+			w += 15.0f;
+			h += 7.5f;
+		}
+	}
 }	

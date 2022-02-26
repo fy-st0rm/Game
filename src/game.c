@@ -13,6 +13,7 @@ Game* game_new()
 
 	// Creating map
 	game->map = map_new(game->window);
+	load_map(game->map, "map.txt");
 
 	game->running = true;
 
