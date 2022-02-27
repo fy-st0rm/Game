@@ -14,7 +14,9 @@ enum tile_types
 
 typedef struct
 {
-	int type;
+	vec3f pos;
+	vec2f size;
+	int   type;
 } Tile;
 
 typedef struct
@@ -24,11 +26,13 @@ typedef struct
 	int tex_cnt;
 
 	Tile** tile_map;
+	int    map_sz;
 	char*  raw_map;
 } Map;
 
 Map* map_new(GLNWindow* window);
 void load_map(Map* map, char* file);
+void load_tiles(Map* map);
 void map_render(Map* map, GLNRenderer* renderer);
 
 #endif 

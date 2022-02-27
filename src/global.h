@@ -6,6 +6,8 @@
 #define MAX_QUADS 1000
 static vec4f background = { 0.0f, 0.0f, 0.0f, 1.0f };
 
+#define CAM_SPEED 0.2f
+
 // Constant window variables
 #define WIN_TITLE  "game"
 #define WIN_WIDTH  800

@@ -14,6 +14,7 @@ Game* game_new()
 	// Creating map
 	game->map = map_new(game->window);
 	load_map(game->map, "map.txt");
+	load_tiles(game->map);
 
 	game->running = true;
 
@@ -52,13 +53,39 @@ void game_event(Game* game)
 		{
 			game->running = false;
 		}
+		else if (event.type == SDL_KEYDOWN)
+		{
+			switch (event.key.keysym.sym)
+			{
+				case SDLK_LEFT:
+					game->camera->pos->x -= CAM_SPEED;
+					break;
+				case SDLK_RIGHT:
+					game->camera->pos->x += CAM_SPEED;
+					break;
+				case SDLK_UP:
+					game->camera->pos->y += CAM_SPEED;
+					break;
+				case SDLK_DOWN:
+					game->camera->pos->y -= CAM_SPEED;
+					break;
+			}
+		}
 	}
 }
 
 void game_run(Game* game)
 {
+	// Frame stuff
+	int fps = 60;
+	int frame_delay = 1000 / fps;
+	Uint32 frame_start;
+	int frame_time;
+
 	while (game->running)
 	{
+		frame_start = SDL_GetTicks();
+
 		gln_clear_window(game->window, background);
 		game_event(game);
 
@@ -71,6 +98,12 @@ void game_run(Game* game)
 		gln_render_end(game->renderer);
 
 		gln_update_window(game->window);
+
+		frame_time = SDL_GetTicks() - frame_start;
+		if (frame_delay > frame_time)
+		{
+			SDL_Delay(frame_delay - frame_time);		
+		}
 	}
 }
 
