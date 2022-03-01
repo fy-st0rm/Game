@@ -14,5 +14,6 @@ void main()
     out_color = in_color;  
     out_tex_cord = in_tex_cord;  
     out_tex_id = in_tex_id;  
-    gl_Position = mvp * in_position;  
+	gl_Position = mvp * in_position;  
+//	gl_Position = in_position;
 };

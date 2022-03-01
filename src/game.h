@@ -13,6 +13,7 @@ typedef struct
 	unsigned int shader;
 
 	// Camera
+	vec3f* cam_pos;
 	Ortho_camera* camera;
 
 	// Map

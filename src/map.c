@@ -1,5 +1,7 @@
 #include "map.h"
 
+//TODO: Figure out a way to implement mouse pointer system
+
 Map* map_new(GLNWindow* window)
 {
 	Map* map = malloc(sizeof(Map));
@@ -21,22 +23,7 @@ Map* map_new(GLNWindow* window)
 
 void load_map(Map* map, char* file)
 {
-	char* temp_map = load_file(file);
-	map->raw_map = calloc(strlen(temp_map), sizeof(char));
-
-	// Copying the world map in a reversed order
-	int offset = 0;
-	char* line = strtok(temp_map, "\n");
-	while (line != NULL)
-	{
-		strrev(line);
-		strcpy(map->raw_map + offset, line);
-		offset += strlen(line);
-		strcpy(map->raw_map + offset++, "\n");
-		line = strtok(NULL, "\n");
-	}
-	free(line);
-	free(temp_map);
+	map->raw_map = load_file(file);
 }
 
 void load_tiles(Map* map)
@@ -45,15 +32,13 @@ void load_tiles(Map* map)
 	map->tile_map = malloc(strlen(map->raw_map) * 2 * sizeof(Tile));
 
 	// Generating tiles
-	vec2f size = { 31.0f, 31.0f };
+	vec2f size = { 16.0f, 16.0f };
 	
 	float x = 0.0f, y = 0.0f;
-	float in_x = 0.0f, in_y = 0.0f;
 
 	for (int i = 0; i < strlen(map->raw_map); i++)
 	{
 		vec3f  pos 	= { x, y, 0.0f };
-		x--;
 		y++;
 
 		char id = map->raw_map[i];
@@ -90,8 +75,8 @@ void load_tiles(Map* map)
 			case '0':
 				break;
 			case '\n':
-				x = ++in_x;
-				y = ++in_y;
+				x++;
+				y = 0.0f;
 				break;
 			default:
 				fprintf(stderr, "[Error]: Unknown tile id `%c`\n", id);
@@ -101,9 +86,20 @@ void load_tiles(Map* map)
 	}
 }
 
-void map_render(Map* map, GLNRenderer* renderer)
+void map_render(Map* map, GLNRenderer* renderer, Ortho_camera* camera)
 {
 	vec4f color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	// Enlargement matrix 
+	mat4f enlarge = {0};
+	mat4f_enlarge(&enlarge, SCALE);
+	
+	int x, y, fx, fy;
+	SDL_GetMouseState(&x, &y);
+
+	// Getting the final mouse position by dividing by `sizeof tiles * scaled value * 2 (cuz enlargement is done 2 times)`
+	fx = (x + (int)camera->pos->x) / (2 *16 * SCALE);
+	fy = (y - (int)camera->pos->y) / (2 *16 * SCALE);
 
 	for (int i = 0; i < map->map_sz; i++)
 	{
@@ -111,16 +107,32 @@ void map_render(Map* map, GLNRenderer* renderer)
 		vec4f* tex = dict_get(map->tex_dict, tile->type);
 		vec3f  pos = tile->pos;
 		vec2f size = tile->size;
-		pos.x *=  15.0f;
-		pos.y *= 7.0f;
-
-		// Enlarging the vertices
-		mat4f enlarge = {0};
-		mat4f_enlarge(&enlarge, 2.0f);
+		pos.x *= size.x;
+		pos.y *= size.y;
 
 		Quad* quad = gln_create_quad(renderer, pos, size, color, *tex, map->texture.id);
 		mat4f_quad_mul(enlarge, quad);
 		gln_push_quad(renderer, quad);
 		gln_destroy_quad(quad);
+
+		if (fx == tile->pos.x && fy == tile->pos.y)
+		{
+			vec4f t = {0, 0, 0, 0};
+			vec4f c = {1.0f, 1.0f, 0.0f, 0.5f};
+			Quad* quad = gln_create_quad(renderer, pos, size, c, t, 0);
+			mat4f_quad_mul(enlarge, quad);
+			gln_push_quad(renderer, quad);
+			gln_destroy_quad(quad);
+		}
 	}
-}	
+}
+
+void map_destroy(Map* map)
+{
+	for (int i = 0; i < map->map_sz; i++)
+		free(map->tile_map[i]);
+	free(map->tile_map);
+	free(map->raw_map);
+	dict_clean(map->tex_dict);
+	free(map);
+}

@@ -33,6 +33,7 @@ typedef struct
 Map* map_new(GLNWindow* window);
 void load_map(Map* map, char* file);
 void load_tiles(Map* map);
-void map_render(Map* map, GLNRenderer* renderer);
+void map_render(Map* map, GLNRenderer* renderer, Ortho_camera* camera);
+void map_destroy(Map* map);
 
 #endif 
