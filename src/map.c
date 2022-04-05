@@ -32,7 +32,7 @@ void load_tiles(Map* map)
 	map->tile_map = malloc(strlen(map->raw_map) * 2 * sizeof(Tile));
 
 	// Generating tiles
-	vec2f size = { 16.0f, 16.0f };
+	vec2f size = { TILE_W, TILE_H };
 	
 	float x = 0.0f, y = 0.0f;
 
@@ -86,20 +86,9 @@ void load_tiles(Map* map)
 	}
 }
 
-void map_render(Map* map, GLNRenderer* renderer, Ortho_camera* camera)
+void map_render(Map* map, GLNRenderer* renderer, vec2f* mouse_pos)
 {
 	vec4f color = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-	// Enlargement matrix 
-	mat4f enlarge = {0};
-	mat4f_enlarge(&enlarge, SCALE);
-	
-	int x, y, fx, fy;
-	SDL_GetMouseState(&x, &y);
-
-	// Getting the final mouse position by dividing by `sizeof tiles * scaled value * 2 (cuz enlargement is done 2 times)`
-	fx = (x + (int)camera->pos->x) / (2 *16 * SCALE);
-	fy = (y - (int)camera->pos->y) / (2 *16 * SCALE);
 
 	for (int i = 0; i < map->map_sz; i++)
 	{
@@ -111,16 +100,14 @@ void map_render(Map* map, GLNRenderer* renderer, Ortho_camera* camera)
 		pos.y *= size.y;
 
 		Quad* quad = gln_create_quad(renderer, pos, size, color, *tex, map->texture.id);
-		mat4f_quad_mul(enlarge, quad);
 		gln_push_quad(renderer, quad);
 		gln_destroy_quad(quad);
 
-		if (fx == tile->pos.x && fy == tile->pos.y)
+		if ((int)mouse_pos->x == tile->pos.x && (int)mouse_pos->y == tile->pos.y)
 		{
 			vec4f t = {0, 0, 0, 0};
 			vec4f c = {1.0f, 1.0f, 0.0f, 0.5f};
 			Quad* quad = gln_create_quad(renderer, pos, size, c, t, 0);
-			mat4f_quad_mul(enlarge, quad);
 			gln_push_quad(renderer, quad);
 			gln_destroy_quad(quad);
 		}

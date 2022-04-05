@@ -6,7 +6,7 @@
 #define MAX_QUADS 1000
 static vec4f background = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-#define CAM_SPEED 16.0f
+#define CAM_SPEED 0.1f
 #define SCALE     2.0f
  
 // Constant window variables
@@ -26,5 +26,7 @@ static vec4f background = { 0.0f, 0.0f, 0.0f, 1.0f };
 //#define TILES "../assets/spritesheet.png"
 #define TILES "../assets/tile.png"
 #define TILE_CNT 3
+#define TILE_W 16
+#define TILE_H 16
 
 #endif

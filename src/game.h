@@ -16,6 +16,9 @@ typedef struct
 	vec3f* cam_pos;
 	Ortho_camera* camera;
 
+	// Mouse
+	vec2f* mouse_pos;
+
 	// Map
 	Map* map;
 
@@ -25,6 +28,7 @@ typedef struct
 
 Game* game_new();
 void  game_init(Game* game);
+void  game_calc_mouse_pos(Game* game);
 void  game_event(Game* game);
 void  game_run(Game* game);
 void  game_exit(Game* game);
