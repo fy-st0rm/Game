@@ -8,9 +8,9 @@ Map* map_new(GLNWindow* window)
 	map->map_sz = 0;
 	map->tex_dict = dict_new();
 
-	vec4f grass = { 0.0 / map->tex_cnt, 0.0, 1.0 / map->tex_cnt, 1.0 };
-	vec4f path  = { 1.0 / map->tex_cnt, 0.0, 1.0 / map->tex_cnt, 1.0 };
-	vec4f water = { 2.0 / map->tex_cnt, 0.0, 1.0 / map->tex_cnt, 1.0 };
+	vec4f grass = { 0.0f / 2.0f, 0.0f / 2.0f, 1.0 / 2.0f, 1.0 / map->tex_cnt};
+	vec4f path  = { 1.0f / 2.0f, 0.0f / 2.0f, 1.0 / 2.0f, 1.0 / map->tex_cnt};
+	vec4f water = { 0.0f / 2.0f, 2.0f / 2.0f, 1.0 / 2.0f, 1.0 / map->tex_cnt};
 
 	dict_insert(map->tex_dict, (void*) &GRASS, (void*) &grass, sizeof(GRASS), sizeof(grass));
 	dict_insert(map->tex_dict, (void*) &PATH , (void*) &path , sizeof(PATH),  sizeof(path));
@@ -37,7 +37,7 @@ void load_tiles(Map* map)
 	for (int i = 0; i < strlen(map->raw_map); i++)
 	{
 		vec3f pos = { x, y, 0.0f };
-		y++;
+		x++;
 
 		char id = map->raw_map[i];
 
@@ -73,8 +73,8 @@ void load_tiles(Map* map)
 			case '0':
 				break;
 			case '\n':
-				x++;
-				y = 0.0f;
+				y++;
+				x = 0.0f;
 				break;
 			default:
 				fprintf(stderr, "[Error]: Unknown tile id `%c`\n", id);

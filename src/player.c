@@ -2,7 +2,7 @@
 
 Player* player_new(GLNWindow* window, vec3f position)
 {
-	vec2f size  = { 16.0f, 16.0f };
+	vec2f size  = { 32.0f, 32.0f };
 	vec4f color = {1.0f, 1.0f, 1.0f, 1.0f};
 
 	Player* player = malloc(sizeof(Player));
@@ -17,15 +17,41 @@ Player* player_new(GLNWindow* window, vec3f position)
 	player->texture = gln_load_texture(window, PLAYER_TEXTURE);
 	player->speed = 3.0f;
 
+	// Movements
 	player->move_left = player->move_right = player->move_up = player->move_down = false;
 	player->turn_left = player->turn_right = false;
 	player->theta = 0.0f;
+
+	// Animator
+	player->animator = animator_new("idle", 50.0f);
+
+	player_init_frames(player);
 	return player;
 }
 
 void player_clean(Player* player)
 {
+	animator_clean(player->animator);
 	free(player);
+}
+
+void player_init_frames(Player* player)
+{
+	// IDLE SPRITE CORDS
+	vec4f idle_down_1 = {0.0f / 2.0f, 0.0f, 1.0f / 2.0f, 1.0f / 2.0f};
+	vec4f idle_down_2 = {1.0f / 2.0f, 0.0f, 1.0f / 2.0f, 1.0f / 2.0f};
+	vec4f idle_up_1   = {0.0f / 2.0f, 1.0f / 2.0f, 1.0f / 2.0f, 1.0f / 2.0f};
+	vec4f idle_up_2   = {1.0f / 2.0f, 1.0f / 2.0f, 1.0f / 2.0f, 1.0f / 2.0f};
+
+	List* list_1 = list_new();
+	list_append(list_1, (void*) &idle_down_1, sizeof(idle_down_1));
+	list_append(list_1, (void*) &idle_down_2, sizeof(idle_down_2));
+	animator_insert(player->animator, IDLE_DOWN, list_1);
+
+	List* list_2 = list_new();
+	list_append(list_2, (void*) &idle_up_1, sizeof(idle_up_1));
+	list_append(list_2, (void*) &idle_up_2, sizeof(idle_up_2));
+	animator_insert(player->animator, IDLE_UP, list_2);
 }
 
 void player_event(Player* player, SDL_Event event)
@@ -104,18 +130,18 @@ void player_handle_movement(Player* player)
 		if (player->move_up)
 		{
 			player->position.y -= player->speed;
+			animator_change_frame(player->animator, IDLE_UP);
 		}
 		if (player->move_down)
 		{
 			player->position.y += player->speed;
+			animator_change_frame(player->animator, IDLE_DOWN);
 		}
 	}
 }
 
 void player_render(Player* player, GLNRenderer* renderer)
 {
-	// Temporaray texture coords
-	vec4f tex = {0.0f, 0.0f, 1.0f, 1.0f};
 
 	// Calculating the position for camera to follow (Opengl cords)
 	player->cam_pos.x = player->position.x / (ZOOM_WIDTH / 2);
@@ -124,7 +150,8 @@ void player_render(Player* player, GLNRenderer* renderer)
 
 	// Passing the origin for the rotation as rotation occurs with origin
 	vec3f pos = {0.0f, 0.0f, 0.0f};
-	Quad* quad = gln_create_quad(renderer, pos, player->size, player->color, tex, player->texture.id);
+	vec4f* tex = animator_get_frame(player->animator);
+	Quad* quad = gln_create_quad(renderer, pos, player->size, player->color, *tex, player->texture.id);
 
 	// Multiplying the quad with rotation matrix 
 	mat4f yrot = {0};
