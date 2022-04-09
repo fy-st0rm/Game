@@ -4,13 +4,10 @@
 #include "gln.h"
 #include "global.h"
 
-enum tile_types
-{
-	NONE,
-	GRASS,
-	PATH ,
-	WATER
-};
+static int NONE = 0;
+static int GRASS = 1;
+static int PATH = 2;
+static int WATER = 3;
 
 typedef struct
 {

@@ -5,15 +5,15 @@ SRC = *.c
 OBJ = *.o
 OUT = game
 
-win:
-	gcc -I../opengl/include -I../gln/includes -c $(SRC) 
-	gcc -o $(OUT).exe $(OBJ) -L../opengl/lib -L../gln/bin -lgln $(LIBS_WIN)
-	erase *.o
-	$(OUT).exe
-
 linux:
 	gcc -c -I../gln/includes $(SRC)
 	gcc -o $(OUT) $(OBJ) -L../gln/bin -lgln $(LIBS_LINUX)
 	rm *.o
 	./$(OUT)
+
+win:
+	gcc -I../opengl/include -I../gln/includes -c $(SRC) 
+	gcc -o $(OUT).exe $(OBJ) -L../opengl/lib -L../gln/bin -lgln $(LIBS_WIN)
+	erase *.o
+	$(OUT).exe
 

@@ -7,7 +7,7 @@
 static vec4f background = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 #define CAM_SPEED 0.1f
-#define SCALE     2.0f
+#define SCALE     3.0f
  
 // Constant window variables
 #define WIN_TITLE   "game"
@@ -20,7 +20,7 @@ static vec4f background = { 0.0f, 0.0f, 0.0f, 1.0f };
 #define VERT_SHADER "../shader/shader.vert"
 #define FRAG_SHADER "../shader/shader.frag"
 
-// Paths
+// Sprites path 
 //#define TILES "../assets/tiles.png"
 //#define TILE_CNT 4
 //#define TILES "../assets/spritesheet.png"
@@ -28,5 +28,7 @@ static vec4f background = { 0.0f, 0.0f, 0.0f, 1.0f };
 #define TILE_CNT 3
 #define TILE_W 16
 #define TILE_H 16
+
+#define PLAYER_TEXTURE "../assets/player.png"
 
 #endif

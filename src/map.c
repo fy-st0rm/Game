@@ -1,22 +1,20 @@
 #include "map.h"
 
-//TODO: Figure out a way to implement mouse pointer system
-
 Map* map_new(GLNWindow* window)
 {
 	Map* map = malloc(sizeof(Map));
 	map->texture = gln_load_texture(window, TILES);
-	map->tex_cnt = 3;
+	map->tex_cnt = TILE_CNT;
 	map->map_sz = 0;
-	map->tex_dict = dict_new(map->tex_cnt);
+	map->tex_dict = dict_new();
 
 	vec4f grass = { 0.0 / map->tex_cnt, 0.0, 1.0 / map->tex_cnt, 1.0 };
 	vec4f path  = { 1.0 / map->tex_cnt, 0.0, 1.0 / map->tex_cnt, 1.0 };
 	vec4f water = { 2.0 / map->tex_cnt, 0.0, 1.0 / map->tex_cnt, 1.0 };
 
-	dict_insert(map->tex_dict, (void*) GRASS, (void*) &grass, sizeof(grass));
-	dict_insert(map->tex_dict, (void*) PATH , (void*) &path , sizeof(path));
-	dict_insert(map->tex_dict, (void*) WATER, (void*) &water, sizeof(water));
+	dict_insert(map->tex_dict, (void*) &GRASS, (void*) &grass, sizeof(GRASS), sizeof(grass));
+	dict_insert(map->tex_dict, (void*) &PATH , (void*) &path , sizeof(PATH),  sizeof(path));
+	dict_insert(map->tex_dict, (void*) &WATER, (void*) &water, sizeof(WATER), sizeof(water));
 
 	return map;
 }
@@ -38,7 +36,7 @@ void load_tiles(Map* map)
 
 	for (int i = 0; i < strlen(map->raw_map); i++)
 	{
-		vec3f  pos 	= { x, y, 0.0f };
+		vec3f pos = { x, y, 0.0f };
 		y++;
 
 		char id = map->raw_map[i];
@@ -93,7 +91,7 @@ void map_render(Map* map, GLNRenderer* renderer, vec2f* mouse_pos)
 	for (int i = 0; i < map->map_sz; i++)
 	{
 		Tile* tile = map->tile_map[i];
-		vec4f* tex = dict_get(map->tex_dict, tile->type);
+		vec4f* tex = dict_get(map->tex_dict, (void*) &tile->type, sizeof(tile->type));
 		vec3f  pos = tile->pos;
 		vec2f size = tile->size;
 		pos.x *= size.x;

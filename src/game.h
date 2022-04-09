@@ -4,6 +4,7 @@
 #include "gln.h"
 #include "global.h"
 #include "map.h"
+#include "player.h"
 #include <stdbool.h>
 
 typedef struct
@@ -15,6 +16,9 @@ typedef struct
 	// Camera
 	vec3f* cam_pos;
 	Ortho_camera* camera;
+
+	// Player
+	Player* player;
 
 	// Mouse
 	vec2f* mouse_pos;

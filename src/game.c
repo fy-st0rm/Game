@@ -1,6 +1,6 @@
 #include "game.h"
 
-//TODO: FIx event system
+//TODO: [] Fix Camera system
 
 Game* game_new()
 {
@@ -15,6 +15,9 @@ Game* game_new()
 	game->cam_pos = malloc(sizeof(vec3f));
 	memcpy(game->cam_pos, &pos, sizeof(pos));
 	game->camera = ortho_cam_new(pos, 0.0f, ZOOM_WIDTH, ZOOM_HEIGHT, 0.0f, 1000.0f, -1.0f);
+
+	// Creating player
+	game->player = player_new(game->window, pos);
 
 	// Allocating mouse position
 	game->mouse_pos = malloc(sizeof(vec2f));
@@ -62,24 +65,7 @@ void game_event(Game* game)
 		{
 			game->running = false;
 		}
-		if (event.type == SDL_KEYDOWN)
-		{
-			switch (event.key.keysym.sym)
-			{
-				case SDLK_a:
-					game->cam_pos->x -= CAM_SPEED;
-					break;
-				case SDLK_d:
-					game->cam_pos->x += CAM_SPEED;
-					break;
-				case SDLK_w:
-					game->cam_pos->y += CAM_SPEED;
-					break;
-				case SDLK_s:
-					game->cam_pos->y -= CAM_SPEED;
-					break;
-			}
-		}
+		player_event(game->player, event);
 	}
 }
 
@@ -118,10 +104,11 @@ void game_run(Game* game)
 		gln_clear_window(game->window, background);
 		game_event(game);
 
-		vec2f offset = {0, 0};
+		// Updating camera
+		vec2f offset = {1, -1};
 
 		glUseProgram(game->shader);
-		ortho_cam_follow(game->camera, *game->cam_pos, offset);
+		ortho_cam_follow(game->camera, game->player->cam_pos, offset);
 		ortho_cam_update(game->camera);
 		ortho_cam_update_shader(game->camera, game->shader);
 
@@ -131,14 +118,18 @@ void game_run(Game* game)
 		// Rendering
 		gln_render_begin(game->renderer);
 		map_render(game->map, game->renderer, game->mouse_pos);
+		player_render(game->player, game->renderer);
 		gln_render_end(game->renderer);
-		gln_update_window(game->window);
 
+		// Caping the frame
 		frame_time = SDL_GetTicks() - frame_start;
 		if (frame_delay > frame_time)
 		{
 			SDL_Delay(frame_delay - frame_time);		
 		}
+
+		// Updating window
+		gln_update_window(game->window);
 	}
 }
 
@@ -146,9 +137,12 @@ void game_exit(Game* game)
 {
 	free(game->mouse_pos);
 	free(game->cam_pos);
+
+	player_clean(game->player);
 	map_destroy(game->map);
 	ortho_cam_destroy(game->camera);
 	gln_destroy_renderer(game->renderer);
 	gln_destroy_window(game->window);
+
 	free(game);
 }
