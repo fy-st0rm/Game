@@ -1,7 +1,5 @@
 #include "game.h"
 
-//TODO: [] Fix Camera system
-
 Game* game_new()
 {
 	Game* game = (Game*) malloc(sizeof(Game));
@@ -14,7 +12,7 @@ Game* game_new()
 	// Creating camera
 	game->cam_pos = malloc(sizeof(vec3f));
 	memcpy(game->cam_pos, &pos, sizeof(pos));
-	game->camera = ortho_cam_new(pos, 0.0f, ZOOM_WIDTH, ZOOM_HEIGHT, 0.0f, 1000.0f, -1.0f);
+	game->camera = ortho_cam_new(pos, 0.0f, ZOOM_WIDTH, ZOOM_HEIGHT, 0.0f, 1000.0f, -100.0f);
 
 	// Creating player
 	game->player = player_new(game->window, pos);

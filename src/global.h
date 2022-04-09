@@ -4,7 +4,7 @@
 #include "gln.h"
 
 #define MAX_QUADS 1000
-static vec4f background = { 0.0f, 0.0f, 0.0f, 1.0f };
+static vec4f background = { 0.5f, 0.5f, 0.5f, 1.0f };
 
 #define CAM_SPEED 0.1f
 #define SCALE     3.0f
@@ -29,6 +29,6 @@ static vec4f background = { 0.0f, 0.0f, 0.0f, 1.0f };
 #define TILE_W 16
 #define TILE_H 16
 
-#define PLAYER_TEXTURE "../assets/player.png"
+#define PLAYER_TEXTURE "../assets/Player.png"
 
 #endif
