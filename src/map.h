@@ -4,10 +4,11 @@
 #include "gln.h"
 #include "global.h"
 
-#define TILES "../assets/Sprites.png"
-#define TILE_CNT 3
+#define TILES "../assets/Sprite_1.png"
 #define TILE_W 16
 #define TILE_H 16
+#define TILE_X_CNT 6
+#define TILE_Y_CNT 6
 
 static int NONE = 0;
 static int GRASS = 1;
@@ -33,7 +34,7 @@ typedef struct
 } Map;
 
 Map* map_new(GLNWindow* window);
-void load_textures(Map* map);
+void map_load_textures(Map* map);
 void load_map(Map* map, char* file);
 void load_tiles(Map* map);
 void map_render(Map* map, GLNRenderer* renderer, vec2f* mouse_pos);

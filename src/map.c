@@ -4,10 +4,11 @@ Map* map_new(GLNWindow* window)
 {
 	Map* map = malloc(sizeof(Map));
 	map->texture = gln_load_texture(window, TILES);
-	map->tex_cnt = TILE_CNT;
+	map->tex_cnt = 3;
 	map->map_sz = 0;
 	map->tex_dict = dict_new();
 
+	/*
 	vec4f grass = { 0.0f / 2.0f, 0.0f / 2.0f, 1.0 / 2.0f, 1.0 / map->tex_cnt};
 	vec4f path  = { 1.0f / 2.0f, 0.0f / 2.0f, 1.0 / 2.0f, 1.0 / map->tex_cnt};
 	vec4f water = { 0.0f / 2.0f, 2.0f / 2.0f, 1.0 / 2.0f, 1.0 / map->tex_cnt};
@@ -15,12 +16,25 @@ Map* map_new(GLNWindow* window)
 	dict_insert(map->tex_dict, (void*) &GRASS, (void*) &grass, sizeof(GRASS), sizeof(grass));
 	dict_insert(map->tex_dict, (void*) &PATH , (void*) &path , sizeof(PATH),  sizeof(path));
 	dict_insert(map->tex_dict, (void*) &WATER, (void*) &water, sizeof(WATER), sizeof(water));
+	*/
+
+	map_load_textures(map);
 
 	return map;
 }
 
-void load_texture(Map* map)
+void map_load_textures(Map* map)
 {
+	int idx = 0;
+	for (float y = 0.0f; y < TILE_Y_CNT; y++)
+	{
+		for (float x = 0.0f; x < TILE_X_CNT; x++)
+		{
+			vec4f pos = {x / TILE_X_CNT, y / TILE_Y_CNT, 1.0f / TILE_X_CNT, 1.0f / TILE_Y_CNT};
+			dict_insert(map->tex_dict, (void*) &idx, (void*) &pos, sizeof(idx), sizeof(pos));
+			idx++;
+		}
+	}
 }
 
 void load_map(Map* map, char* file)
@@ -33,59 +47,47 @@ void load_tiles(Map* map)
 	// Generating tile map buffer
 	map->tile_map = malloc(strlen(map->raw_map) * 2 * sizeof(Tile));
 
+	// Copying to temp storage
+	char temp_map[strlen(map->raw_map)];
+	strcpy(temp_map, map->raw_map);
+
 	// Generating tiles
+	float x = 0.0f, y = 0.0f;
 	vec2f size = { TILE_W, TILE_H };
 	
-	float x = 0.0f, y = 0.0f;
-
-	for (int i = 0; i < strlen(map->raw_map); i++)
+	// Storing lines
+	List* lines = list_new();
+	char* line = strtok(temp_map, "\n");
+	while (line != NULL)
 	{
-		vec3f pos = { x, y, 0.0f };
-		x++;
-
-		char id = map->raw_map[i];
-
-		switch (id)
-		{
-			case '1': 
-			{
-				Tile* new_tile = malloc(sizeof(Tile));
-				new_tile->pos  = pos;
-				new_tile->size = size;
-				new_tile->type = GRASS;
-				map->tile_map[map->map_sz++] = new_tile;
-				break;
-			}
-			case '2':
-			{
-				Tile* new_tile = malloc(sizeof(Tile));
-				new_tile->pos  = pos;
-				new_tile->size = size;
-				new_tile->type = PATH;
-				map->tile_map[map->map_sz++] = new_tile;
-				break;
-			}
-			case '3':
-			{
-				Tile* new_tile = malloc(sizeof(Tile));
-				new_tile->pos  = pos;
-				new_tile->size = size;
-				new_tile->type = WATER;
-				map->tile_map[map->map_sz++] = new_tile;
-				break;
-			}
-			case '0':
-				break;
-			case '\n':
-				y++;
-				x = 0.0f;
-				break;
-			default:
-				fprintf(stderr, "[Error]: Unknown tile id `%c`\n", id);
-				exit(1);
-				break;
-		}
+		list_append(lines, (void*) line, sizeof(char) * strlen(line));
+		line = strtok(NULL, "\n");
 	}
+
+	// Converting digits to the corresponding tile
+	for (int i = 0; i < lines->len; i++)
+	{
+		char* line = list_get(lines, i);
+		char* digit = strtok(line, ",");
+		while (digit != NULL)
+		{
+			vec3f pos = { x, y, 0.0f };
+			x++;
+
+			int idx = atoi(digit);
+			Tile* new_tile = malloc(sizeof(Tile));
+			new_tile->pos  = pos;
+			new_tile->size = size;
+			new_tile->type = idx;
+			map->tile_map[map->map_sz++] = new_tile;
+
+			digit = strtok(NULL, ",");
+		}
+		x = 0;
+		y++;
+	}
+
+	list_clean(lines);
 }
 
 void map_render(Map* map, GLNRenderer* renderer, vec2f* mouse_pos)
