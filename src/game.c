@@ -23,7 +23,7 @@ Game* game_new()
 
 	// Creating map
 	game->map = map_new(game->window);
-	load_map(game->map, "map.txt");
+	load_map(game->map, "test.txt");
 	load_tiles(game->map);
 
 	game->running = true;
