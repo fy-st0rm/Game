@@ -58,6 +58,7 @@ void list_pop(List* list, int index)
 		fprintf(stderr, "[ERROR]: List index out of range.\n");
 		exit(1);
 	}
+	free(list->items[index]);
 	for (int i = index; i < list->len; i++)
 	{
 		list->items[i] = list->items[i+1];

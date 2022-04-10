@@ -19,6 +19,10 @@ Map* map_new(GLNWindow* window)
 	return map;
 }
 
+void load_texture(Map* map)
+{
+}
+
 void load_map(Map* map, char* file)
 {
 	map->raw_map = load_file(file);

@@ -23,8 +23,11 @@ void animator_insert(Animator* animator, char* frame_name, List* tex_cords)
 
 void animator_change_frame(Animator* animator, char* frame)
 {
-	strcpy(animator->curr_frame, frame);
-	animator->idx = 0.0f;
+	if (strcmp(animator->curr_frame, frame)) 
+	{
+		strcpy(animator->curr_frame, frame);
+		animator->idx = 0.0f;
+	}
 }
 
 vec4f* animator_get_frame(Animator* animator)
