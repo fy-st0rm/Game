@@ -11,14 +11,15 @@ typedef struct
 {
 	GLNWindow*   window;
 	GLNRenderer* renderer;
+	SDL_Event    event;
 	unsigned int shader;
+
+	// Entities
+	Entity* player;
 
 	// Camera
 	vec3f* cam_pos;
 	Ortho_camera* camera;
-
-	// Player
-	Player* player;
 
 	// Mouse
 	vec2f* mouse_pos;

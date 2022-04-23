@@ -82,6 +82,11 @@ Dict* dict_new()
 
 void dict_clean(Dict* dict)
 {
+	for(int i = 0; i < dict->len; i++)
+	{
+		free(dict->items[i]->key);
+		free(dict->items[i]->value);
+	}
 	free(dict->items);
 	free(dict);
 }

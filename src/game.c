@@ -1,5 +1,14 @@
 #include "game.h"
 
+/*
+ * TODO: [X] Make a entity component system
+ * TODO: [ ] Add animator component
+ * TODO: [ ] A room based map generator
+ * TODO: [ ] More tilesets and entities
+ * TODO: [ ] First basic combat system
+ * TODO: [ ] UI
+ */
+
 Game* game_new()
 {
 	Game* game = (Game*) malloc(sizeof(Game));
@@ -14,17 +23,12 @@ Game* game_new()
 	memcpy(game->cam_pos, &pos, sizeof(pos));
 	game->camera = ortho_cam_new(pos, 0.0f, ZOOM_WIDTH, ZOOM_HEIGHT, 0.0f, 1000.0f, -100.0f);
 
-	// Creating player
-	game->player = player_new(game->window, pos);
-
 	// Allocating mouse position
 	game->mouse_pos = malloc(sizeof(vec2f));
 	memcpy(game->mouse_pos, &pos, sizeof(pos));
 
-	// Creating map
-	game->map = map_new(game->window);
-	load_map(game->map, "test.txt");
-	load_tiles(game->map);
+	// Player
+	game->player = player_new(game->window, game->renderer);
 
 	game->running = true;
 
@@ -56,14 +60,13 @@ void game_init(Game* game)
 
 void game_event(Game* game)
 {
-	SDL_Event event;
-	while (SDL_PollEvent(&event))
+	while (SDL_PollEvent(&game->event))
 	{
-		if (event.type == SDL_QUIT)
+		if (game->event.type == SDL_QUIT)
 		{
 			game->running = false;
 		}
-		player_event(game->player, event);
+		entity_controller_event(game->player, game->event);
 	}
 }
 
@@ -83,8 +86,8 @@ void game_calc_mouse_pos(Game* game)
 	cam_y = (int)(game->camera->pos->y * ZOOM_HEIGHT / 2);
 
 	// Calculating the final mouse position with the camera's position offset and dividing by tiles size to get mouse position in grid
-	game->mouse_pos->x = (int)((x + cam_x) / (TILE_W));
-	game->mouse_pos->y = (int)((y - cam_y) / (TILE_H));
+	game->mouse_pos->x = (int)((x + cam_x) / (16));
+	game->mouse_pos->y = (int)((y - cam_y) / (16));
 }
 
 void game_run(Game* game)
@@ -106,7 +109,7 @@ void game_run(Game* game)
 		vec2f offset = {1, -1};
 
 		glUseProgram(game->shader);
-		ortho_cam_follow(game->camera, game->player->cam_pos, offset);
+		ortho_cam_follow(game->camera, entity_get_gl_pos(game->player, ZOOM_WIDTH, ZOOM_HEIGHT), offset);
 		ortho_cam_update(game->camera);
 		ortho_cam_update_shader(game->camera, game->shader);
 
@@ -115,8 +118,7 @@ void game_run(Game* game)
 
 		// Rendering
 		gln_render_begin(game->renderer);
-		map_render(game->map, game->renderer, game->mouse_pos);
-		player_render(game->player, game->renderer);
+		player_render(game->player);
 		gln_render_end(game->renderer);
 
 		// Caping the frame
@@ -136,8 +138,8 @@ void game_exit(Game* game)
 	free(game->mouse_pos);
 	free(game->cam_pos);
 
-	player_clean(game->player);
-	map_destroy(game->map);
+	//map_destroy(game->map);
+	entity_destroy(game->player);
 	ortho_cam_destroy(game->camera);
 	gln_destroy_renderer(game->renderer);
 	gln_destroy_window(game->window);

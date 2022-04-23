@@ -1,7 +1,7 @@
 LIBS_LINUX = -lSDL2main -lSDL2 -lSDL2_image -lGLU -lGL -lGLEW -lm
 LIBS_WIN = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lopengl32 -lUser32 -lShell32 -lglew32 -lm
 
-SRC = *.c
+SRC = *.c entity/*.c
 OBJ = *.o
 OUT = game
 
